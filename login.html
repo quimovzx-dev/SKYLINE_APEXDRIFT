@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sky Dodger — Login</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+  .card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 90%;
+    max-width: 360px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    animation: rise 0.5s ease-out;
+  }
+  @keyframes rise {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  h1 { text-align: center; font-size: 1.5rem; margin-bottom: 4px; }
+  p.sub { text-align: center; color: #cfd8ea; font-size: 0.85rem; margin-bottom: 24px; }
+  label { font-size: 0.8rem; color: #cfd8ea; }
+  input {
+    width: 100%;
+    padding: 12px;
+    margin: 6px 0 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+  }
+  input::placeholder { color: #b8c2d9; }
+  input:focus { border-color: #7fd8ff; }
+  button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #ffb703;
+    color: #1e3c72;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  button:active { transform: scale(0.97); }
+  #msg { text-align: center; margin-top: 14px; font-size: 0.85rem; min-height: 1.2em; }
+  .gdbp { text-align: center; margin-top: 10px; font-size: 0.95rem; color: #7fffa0; font-weight: bold; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎮 Sky Dodger</h1>
+    <p class="sub">Log in to play — new names are registered automatically</p>
+
+    <label for="usr">Username</label>
+    <input id="usr" type="text" placeholder="e.g. flyer123" autocomplete="username" />
+
+    <label for="pwd">Password</label>
+    <input id="pwd" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+    <button id="loginBtn">Login / Register</button>
+    <div id="msg"></div>
+  </div>
+
+<script>
+const btn = document.getElementById('loginBtn');
+const msg = document.getElementById('msg');
+
+btn.addEventListener('click', async () => {
+  const usr_name = document.getElementById('usr').value.trim();
+  const passwd = document.getElementById('pwd').value;
+
+  if (!usr_name || !passwd) {
+    msg.textContent = 'Please fill in both fields.';
+    msg.style.color = '#ff8080';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+  msg.textContent = '';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usr_name, passwd })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      msg.textContent = data.error || 'Login failed.';
+      msg.style.color = '#ff8080';
+      btn.disabled = false;
+      btn.textContent = 'Login / Register';
+      return;
+    }
+
+    msg.innerHTML = `Welcome, ${usr_name}! <div class="gdbp">GDBP_NUMBER: ${data.gdbp_number}</div>`;
+    localStorage.setItem('gdbp_number', data.gdbp_number);
+    localStorage.setItem('usr_name', usr_name);
+
+    setTimeout(() => { window.location.href = '/game.html'; }, 900);
+  } catch (err) {
+    msg.textContent = 'Network error — try again.';
+    msg.style.color = '#ff8080';
+    btn.disabled = false;
+    btn.textContent = 'Login / Register';
+  }
+});
+</script>
+</body>
+</html>
