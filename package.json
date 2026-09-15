@@ -1,0 +1,9 @@
+{
+  "name": "gdbp-sky-dodger",
+  "version": "1.0.0",
+  "description": "12th grade CS project: database-integrated login + arcade game",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "bcryptjs": "^2.4.3"
+  }
+}
